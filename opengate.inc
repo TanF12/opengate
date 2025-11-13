@@ -5,7 +5,7 @@
     it opens without the need to type commands or press buttons.
     
     Creator: Crazy_ArKzX
-    Contributors: ddx60hz, HaShira_Caos, PortalSamp (utils)
+    Contributors: Tommy, ddx60hz, HaShira_Caos, PortalSamp (utils)
     
     CreateAutoGate(
     modelid, // Object Model
@@ -312,4 +312,5 @@ public OnGameModeExit()
 
 #if defined AutoGate_OnGameModeExit
     forward AutoGate_OnGameModeExit();
+
 #endif
