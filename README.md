@@ -28,11 +28,10 @@ CreateAutoGate(
 ```
 --------------------------------------------------------------------------------------------------------------
 
-Usage Examples
+# Usage Examples
 
-```pawn
 Open Gate for Anyone
-
+```pawn
 public OnGameModeInit()
 {
     CreateAutoGate(
@@ -44,9 +43,9 @@ public OnGameModeInit()
     return 1;
 }
 ```
-```pawn
- Open Gate Only for Players Meeting a Condition
 
+ Open Gate Only for Players Meeting a Condition
+```pawn
 new myGate;
 
 public OnGameModeInit()
@@ -83,3 +82,4 @@ Fully compatible with SAMP scripting
 
 Creator: Crazy_ArKzX
 Contributors: ddx60hz, HaShira_Caos, PortalSamp (utils)
+
