@@ -4,8 +4,7 @@
     Where, when approaching the gate,
     it opens without the need to type commands or press buttons.
     
-    Creator: Crazy_ArKzX
-    Contributors: Tommy
+    Creators: Crazy_ArKzX & Tommy
     
     CreateAutoGate(
     modelid, // Object Model
