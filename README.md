@@ -3,13 +3,12 @@
 **OpenGate Include** provides an **Automatic Gate System**  
 When a player approaches the gate, it opens automatically  
 without the need to type commands or press buttons.
-Compatible with samp/open.mp
 
 ---
 
 ## Demonstration
 
-🎥 [Watch on YouTube](https://youtu.be/NexNcZS4BEU?si=jopC68YlkFwErGUg)
+🎥 | [Watch on YouTube](https://youtu.be/NexNcZS4BEU?si=jopC68YlkFwErGUg) // Trash Quality 😡
 
 ---
 
@@ -45,7 +44,7 @@ public OnGameModeInit()
     return 1;
 }
 
-2️⃣ Open Gate Only for Players Meeting a Condition
+ Open Gate Only for Players Meeting a Condition
 
 new myGate;
 
@@ -76,11 +75,10 @@ Features:
 Automatic gate opening/closing
 Supports custom open/close positions
 Configurable opening range, speed, and auto-close time
-Can restrict opening to specific players or conditions
+Can restrict opening to specific players or condition
 Fully compatible with SAMP scripting
 
 ---
 
 Creator: Crazy_ArKzX
-
 Contributors: ddx60hz, HaShira_Caos, PortalSamp (utils)
