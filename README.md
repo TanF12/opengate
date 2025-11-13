@@ -75,10 +75,9 @@ Fully compatible with SAMP scripting
 
 --------------------------------------------------------------------------------------------------------------
 
-Creator: Crazy_ArKzX
-
-Contributors: Tommy, ddx60hz, HaShira_Caos, PortalSamp (utils)
+Creator: Crazy_ArKzX & Tommy
 
 --------------------------------------------------------------------------------------------------------------
+
 
 
