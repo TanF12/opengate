@@ -25,11 +25,12 @@ CreateAutoGate(
     bool:auto_open = true             // true: opens automatically for anyone
                                       // false: opens only if the player meets a specific condition or performs a certain action
 );
-
+```
 --------------------------------------------------------------------------------------------------------------
 
 Usage Examples
 
+```pawn
 Open Gate for Anyone
 
 public OnGameModeInit()
@@ -42,7 +43,8 @@ public OnGameModeInit()
     );
     return 1;
 }
-
+```
+```pawn
  Open Gate Only for Players Meeting a Condition
 
 new myGate;
@@ -67,7 +69,7 @@ public OnPlayerUpdate(playerid)
     }
     return 1;
 }
-
+```
 --------------------------------------------------------------------------------------------------------------
 
 Features:
@@ -81,4 +83,3 @@ Fully compatible with SAMP scripting
 
 Creator: Crazy_ArKzX
 Contributors: ddx60hz, HaShira_Caos, PortalSamp (utils)
-
