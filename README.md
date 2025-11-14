@@ -23,7 +23,7 @@ CreateAutoGate(
     )
 ```
 
-> Movement Options
+# Movement Options
 * up
 * down
 * left
@@ -76,6 +76,7 @@ Fully compatible with SA-MP/open.mp scripting
 Creators: Crazy_ArKzX & Tommy
 
 --------------------------------------------------------------------------------------------------------------
+
 
 
 
