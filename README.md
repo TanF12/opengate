@@ -12,16 +12,24 @@ without the need to type commands or press buttons.
 
 ```pawn
 CreateAutoGate(
-    modelid,                         // Object model
-    Float:closeX, Float:closeY, Float:closeZ, Float:closeRX, Float:closeRY, Float:closeRZ,  // Closed gate position
-    Float:openX, Float:openY, Float:openZ, Float:openRX, Float:openRY, Float:openRZ,        // Open gate position
-    Float:range = 10.0,              // Distance to automatically open the gate
-    speed = 2,                        // Gate opening speed
-    autoclose_time = 5000,            // Time in ms to automatically close the gate
-    bool:auto_open = true             // true: opens automatically for anyone
-                                      // false: opens only if the player meets a specific condition or performs a certain action
-);
+        modelid, // Object Model 
+        Float:closeX, Float:closeY, Float:closeZ, Float:closeRX, Float:closeRY, Float:closeRZ, // Gate Position
+        move[], // Direction of Movement: "left", "right", "up", "down", "forward", "backward"
+        Float:movement, // How Many Meters Will the Gate Move 
+        Float:range = 10.0, // Distance to Open the Gate 
+        speed = 2, // Opening Speed
+        autoclose_time = 5000, // Time to Auto Close
+        bool:auto_open = true // Automatically Open to Anyone (true) or (false) Only With Condition 
+    )
 ```
+
+> Movement Options
+* up
+* down
+* left
+* right
+* forward
+* backward
 
 # Usage Examples
 
@@ -29,12 +37,7 @@ Open Gate for Anyone
 ```pawn
 public OnGameModeInit()
 {
-    CreateAutoGate(
-        980, 
-        1803.3665, -1722.0623, 13.5428, 0.0, 0.0, 0.0,   // Closed position
-        1803.3665, -1722.0623, 17.3954, 0.0, 0.0, 0.0,  // Open position
-        5.0, 2, 5000, true                               // Range, speed, auto-close time, auto-open
-    );
+    CreateAutoGate(980, 1803.3665, -1722.0623, 13.5428, 0.0, 0.0, 0.0, "up", 3.8526, 10.0, 2, 5000, true);
     return 1;
 }
 ```
@@ -45,12 +48,7 @@ new myGate;
 
 public OnGameModeInit()
 {
-    myGate = CreateAutoGate(
-        980, 
-        1803.3665, -1722.0623, 13.5428, 0.0, 0.0, 0.0,   // Closed position
-        1803.3665, -1722.0623, 17.3954, 0.0, 0.0, 0.0,  // Open position
-        5.0, 2, 5000, false                              // Range, speed, auto-close time, auto-open disabled
-    );
+    myGate = CreateAutoGate(980, 1803.3665, -1722.0623, 13.5428, 0.0, 0.0, 0.0, "up", 3.8526, 10.0, 2, 5000, false);
     return 1;
 }
 
@@ -78,6 +76,7 @@ Fully compatible with SA-MP/open.mp scripting
 Creators: Crazy_ArKzX & Tommy
 
 --------------------------------------------------------------------------------------------------------------
+
 
 
 
