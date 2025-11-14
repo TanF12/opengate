@@ -1,5 +1,5 @@
 /*
-    OpenGate Include - OPTIMIZED VERSION
+    OpenGate Include
     Automatic Gate System with Performance Improvements
     
     Creator: Crazy_ArKzX
@@ -14,10 +14,6 @@
         autoclose_time = 5000,
         bool:auto_open = true
     )
-    
-    // ATTENTION
-    USE InitGateSystem(); In OnGameModeInit 
-    USE DestroyAllAutoGates(); in OnGameModeExit
 */
 
 #if defined _opengate_included
@@ -31,6 +27,9 @@
 #if !defined _streamer_included
     #error "Streamer Plugin Required!"
 #endif
+
+// Use YSI if available 
+#tryinclude <YSI_Coding\y_hooks>
 
 #define GATE_MOVE_UP        0
 #define GATE_MOVE_DOWN      1
@@ -55,13 +54,12 @@ enum GateData {
 }
 
 static GateInfo[MAX_GATES][GateData];
-
 static gateFreeSlots[MAX_GATES];
 static gateFreeCount = 0;
 static gateUsedCount = 0;
 static gateAreaMap[MAX_GATES];
 
-stock InitGateSystem() 
+static stock InitGateSystem() 
 {
     for(new i = 0; i < MAX_GATES; i++) 
     {
@@ -72,7 +70,7 @@ stock InitGateSystem()
     gateUsedCount = 0;
 }
 
-stock AllocateGateSlot() 
+static stock AllocateGateSlot() 
 {
     if(gateFreeCount <= 0) return INVALID_GATE_ID;
     gateFreeCount--;
@@ -80,7 +78,7 @@ stock AllocateGateSlot()
     return gateFreeSlots[gateFreeCount];
 }
 
-stock FreeGateSlot(gateID) 
+static stock FreeGateSlot(gateID) 
 {
     if(gateID < 0 || gateID >= MAX_GATES) return 0;
     gateFreeSlots[gateFreeCount] = gateID;
@@ -89,15 +87,17 @@ stock FreeGateSlot(gateID)
     return 1;
 }
 
-stock Float:GetDistanceSquared(Float:x1, Float:y1, Float:z1, Float:x2, Float:y2, Float:z2) 
+#if !defined GetDistanceSquared
+static stock Float:GetDistanceSquared(Float:x1, Float:y1, Float:z1, Float:x2, Float:y2, Float:z2) 
 {
     new Float:dx = x2 - x1;
     new Float:dy = y2 - y1;
     new Float:dz = z2 - z1;
     return (dx * dx) + (dy * dy) + (dz * dz);
 }
+#endif
 
-stock GetMoveDirection(const move[]) 
+static stock GetMoveDirection(const move[]) 
 {
     switch(move[0]) 
     {
@@ -111,7 +111,7 @@ stock GetMoveDirection(const move[])
     return GATE_MOVE_UP;
 }
 
-stock CalculateOpenPosition(Float:closeX, Float:closeY, Float:closeZ, Float:closeRZ, direction, Float:movement, &Float:openX, &Float:openY, &Float:openZ) 
+static stock CalculateOpenPosition(Float:closeX, Float:closeY, Float:closeZ, Float:closeRZ, direction, Float:movement, &Float:openX, &Float:openY, &Float:openZ) 
 {
     openX = closeX;
     openY = closeY;
@@ -265,6 +265,19 @@ stock GetGateCount()
     return gateUsedCount;
 }
 
+stock DestroyAllAutoGates() 
+{
+    for(new i = 0; i < MAX_GATES; i++) 
+    {
+        if(GateInfo[i][gateExists]) 
+        {
+            DestroyAutoGate(i);
+        }
+    }    
+    InitGateSystem();
+    return 1;
+}
+
 forward AutoGateCloseTimer(gateID);
 public AutoGateCloseTimer(gateID) 
 {
@@ -288,88 +301,168 @@ public AutoGateCloseTimer(gateID)
     return 1;
 }
 
-#if defined _ALS_OnPlayerEnterDynamicArea
-    #undef OnPlayerEnterDynamicArea
-#else
-    #define _ALS_OnPlayerEnterDynamicArea
-#endif
-#define OnPlayerEnterDynamicArea OG_OnPlrEnterDynArea
-#if defined OG_OnPlrEnterDynArea
-    forward OG_OnPlrEnterDynArea(playerid, areaid);
-#endif
-#if defined _ALS_OnPlayerLeaveDynamicArea
-    #undef OnPlayerLeaveDynamicArea
-#else
-    #define _ALS_OnPlayerLeaveDynamicArea
-#endif
-#define OnPlayerLeaveDynamicArea OG_OnPlrLeaveDynArea
-#if defined OG_OnPlrLeaveDynArea
-    forward OG_OnPlrLeaveDynArea(playerid, areaid);
-#endif
-
-public OnPlayerEnterDynamicArea(playerid, areaid) 
-{
-    new gateID = INVALID_GATE_ID;
-    if(areaid < MAX_GATES) 
+// Use YSI hooks if available
+#if defined _INC_y_hooks
+    hook OnGameModeInit()
     {
-        gateID = gateAreaMap[areaid];
-    }    
-    if(gateID != INVALID_GATE_ID && GateInfo[gateID][gateExists]) 
-    {
-        if(GateInfo[gateID][gateAutoOpen] && !GateInfo[gateID][gateIsOpen]) 
-        {
-            OpenAutoGate(gateID);
-        }
-    }    
-    #if defined OG_OnPlrEnterDynArea
-        return OG_OnPlrEnterDynArea(playerid, areaid);
-    #else
+        InitGateSystem();
         return 1;
-    #endif
-}
-
-public OnPlayerLeaveDynamicArea(playerid, areaid) 
-{
-    new gateID = INVALID_GATE_ID;
-    if(areaid < MAX_GATES) 
+    }
+    hook OnGameModeExit()
     {
-        gateID = gateAreaMap[areaid];
-    }    
-    if(gateID != INVALID_GATE_ID && GateInfo[gateID][gateExists]) 
+        DestroyAllAutoGates();
+        return 1;
+    }
+    hook OnPlayerEnterDynArea(playerid, areaid)
     {
-        if(GateInfo[gateID][gateIsOpen] && GateInfo[gateID][gateTimerID] == -1) 
+        new gateID = INVALID_GATE_ID;
+        if(areaid < MAX_GATES) 
         {
-            new bool:otherPlayerInArea = false;
-            foreach(new i : Player) 
+            gateID = gateAreaMap[areaid];
+        }    
+        if(gateID != INVALID_GATE_ID && GateInfo[gateID][gateExists]) 
+        {
+            if(GateInfo[gateID][gateAutoOpen] && !GateInfo[gateID][gateIsOpen]) 
             {
-                if(i != playerid && IsPlayerInDynamicArea(i, areaid)) 
-                {
-                    otherPlayerInArea = true;
-                    break;
-                }
-            }           
-            if(!otherPlayerInArea) 
-            {
-                GateInfo[gateID][gateTimerID] = SetTimerEx("AutoGateCloseTimer", GateInfo[gateID][gateAutoCloseTime], false, "i", gateID);
+                OpenAutoGate(gateID);
             }
         }
-    }   
-    #if defined OG_OnPlrLeaveDynArea
-        return OG_OnPlrLeaveDynArea(playerid, areaid);
-    #else
         return 1;
-    #endif
-}
-
-stock DestroyAllAutoGates() 
-{
-    for(new i = 0; i < MAX_GATES; i++) 
+    }
+    hook OnPlayerLeaveDynArea(playerid, areaid)
     {
-        if(GateInfo[i][gateExists]) 
+        new gateID = INVALID_GATE_ID;
+        if(areaid < MAX_GATES) 
         {
-            DestroyAutoGate(i);
+            gateID = gateAreaMap[areaid];
+        }    
+        if(gateID != INVALID_GATE_ID && GateInfo[gateID][gateExists]) 
+        {
+            if(GateInfo[gateID][gateIsOpen] && GateInfo[gateID][gateTimerID] == -1) 
+            {
+                new bool:otherPlayerInArea = false;
+                foreach(new i : Player) 
+                {
+                    if(i != playerid && IsPlayerInDynamicArea(i, areaid)) 
+                    {
+                        otherPlayerInArea = true;
+                        break;
+                    }
+                }           
+                if(!otherPlayerInArea) 
+                {
+                    GateInfo[gateID][gateTimerID] = SetTimerEx("AutoGateCloseTimer", GateInfo[gateID][gateAutoCloseTime], false, "i", gateID);
+                }
+            }
         }
-    }    
-    InitGateSystem();
-    return 1;
-}
+        return 1;
+    }
+#else
+    // Use ALS if YSI is not available
+    #if defined _ALS_OnGameModeInit
+        #undef OnGameModeInit
+    #else
+        #define _ALS_OnGameModeInit
+    #endif
+    #define OnGameModeInit OG_OnGameModeInit
+    #if defined OG_OnGameModeInit
+        forward OG_OnGameModeInit();
+    #endif
+    public OnGameModeInit()
+    {
+        InitGateSystem();
+        #if defined OG_OnGameModeInit
+            return OG_OnGameModeInit();
+        #else
+            return 1;
+        #endif
+    }
+    #if defined _ALS_OnGameModeExit
+        #undef OnGameModeExit
+    #else
+        #define _ALS_OnGameModeExit
+    #endif
+    #define OnGameModeExit OG_OnGameModeExit
+    #if defined OG_OnGameModeExit
+        forward OG_OnGameModeExit();
+    #endif
+    public OnGameModeExit()
+    {
+        DestroyAllAutoGates();
+        #if defined OG_OnGameModeExit
+            return OG_OnGameModeExit();
+        #else
+            return 1;
+        #endif
+    }
+    #if defined _ALS_OnPlayerEnterDynamicArea
+        #undef OnPlayerEnterDynamicArea
+    #else
+        #define _ALS_OnPlayerEnterDynamicArea
+    #endif
+    #define OnPlayerEnterDynamicArea OG_OnPlrEnterDynArea
+    #if defined OG_OnPlrEnterDynArea
+        forward OG_OnPlrEnterDynArea(playerid, areaid);
+    #endif
+    public OnPlayerEnterDynamicArea(playerid, areaid) 
+    {
+        new gateID = INVALID_GATE_ID;
+        if(areaid < MAX_GATES) 
+        {
+            gateID = gateAreaMap[areaid];
+        }    
+        if(gateID != INVALID_GATE_ID && GateInfo[gateID][gateExists]) 
+        {
+            if(GateInfo[gateID][gateAutoOpen] && !GateInfo[gateID][gateIsOpen]) 
+            {
+                OpenAutoGate(gateID);
+            }
+        }    
+        #if defined OG_OnPlrEnterDynArea
+            return OG_OnPlrEnterDynArea(playerid, areaid);
+        #else
+            return 1;
+        #endif
+    }
+    #if defined _ALS_OnPlayerLeaveDynamicArea
+        #undef OnPlayerLeaveDynamicArea
+    #else
+        #define _ALS_OnPlayerLeaveDynamicArea
+    #endif
+    #define OnPlayerLeaveDynamicArea OG_OnPlrLeaveDynArea
+    #if defined OG_OnPlrLeaveDynArea
+        forward OG_OnPlrLeaveDynArea(playerid, areaid);
+    #endif
+    public OnPlayerLeaveDynamicArea(playerid, areaid) 
+    {
+        new gateID = INVALID_GATE_ID;
+        if(areaid < MAX_GATES) 
+        {
+            gateID = gateAreaMap[areaid];
+        }    
+        if(gateID != INVALID_GATE_ID && GateInfo[gateID][gateExists]) 
+        {
+            if(GateInfo[gateID][gateIsOpen] && GateInfo[gateID][gateTimerID] == -1) 
+            {
+                new bool:otherPlayerInArea = false;
+                foreach(new i : Player) 
+                {
+                    if(i != playerid && IsPlayerInDynamicArea(i, areaid)) 
+                    {
+                        otherPlayerInArea = true;
+                        break;
+                    }
+                }           
+                if(!otherPlayerInArea) 
+                {
+                    GateInfo[gateID][gateTimerID] = SetTimerEx("AutoGateCloseTimer", GateInfo[gateID][gateAutoCloseTime], false, "i", gateID);
+                }
+            }
+        }   
+        #if defined OG_OnPlrLeaveDynArea
+            return OG_OnPlrLeaveDynArea(playerid, areaid);
+        #else
+            return 1;
+        #endif
+    }
+#endif
