@@ -76,36 +76,40 @@ enum E_GATE_DATA {
 }
 
 static GateInfo[MAX_GATES][E_GATE_DATA];
-static gateFreeSlots[MAX_GATES];
-static gateFreeCount;
-static gateUsedCount;
+static gateUsedCount = 0;
 
 stock OG_InitGateSystem() 
 {
     for(new i = 0; i < MAX_GATES; i++) 
     {
-        gateFreeSlots[i] = i;
         GateInfo[i][gExists] = false;
         GateInfo[i][gTimerID] = -1;
     }
-    gateFreeCount = MAX_GATES;
     gateUsedCount = 0;
 }
 
 static stock OG_AllocateGateSlot() 
 {
-    if(gateFreeCount <= 0) return INVALID_GATE_ID;
-    gateFreeCount--;
-    gateUsedCount++;
-    return gateFreeSlots[gateFreeCount];
+    for(new i = 0; i < MAX_GATES; i++)
+    {
+        if(!GateInfo[i][gExists])
+        {
+            gateUsedCount++;
+            return i;
+        }
+    }
+    printf("[OpenGate] Error: No free slots available (Max: %d)", MAX_GATES);
+    return INVALID_GATE_ID;
 }
 
 static stock OG_FreeGateSlot(gateID) 
 {
     if(gateID < 0 || gateID >= MAX_GATES) return 0;
-    gateFreeSlots[gateFreeCount] = gateID;
-    gateFreeCount++;
-    gateUsedCount--;
+    
+    if(GateInfo[gateID][gExists])
+    {
+        gateUsedCount--;
+    }
     return 1;
 }
 
