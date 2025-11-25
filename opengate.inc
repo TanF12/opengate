@@ -319,9 +319,25 @@ stock OpenAutoGate(gateID)
 {
     if(gateID < 0 || gateID >= MAX_GATES || !GateInfo[gateID][gExists] || GateInfo[gateID][gIsOpen]) return 0;
     
+    new Float:currX, Float:currY, Float:currZ;
+    GetDynamicObjectPos(GateInfo[gateID][gObjectID], currX, currY, currZ);
+
+    new Float:dist = VectorSize(
+        GateInfo[gateID][gOpenPos][0] - currX, 
+        GateInfo[gateID][gOpenPos][1] - currY, 
+        GateInfo[gateID][gOpenPos][2] - currZ
+    );
+
+    new Float:moveSpeed = GateInfo[gateID][gSpeed];
+
+    if(dist < 0.1 && moveSpeed > 0.01)
+    {
+        moveSpeed = moveSpeed * 0.01;
+    }
+
     MoveDynamicObject(GateInfo[gateID][gObjectID], 
         GateInfo[gateID][gOpenPos][0], GateInfo[gateID][gOpenPos][1], GateInfo[gateID][gOpenPos][2], 
-        GateInfo[gateID][gSpeed], 
+        moveSpeed,
         GateInfo[gateID][gOpenPos][3], GateInfo[gateID][gOpenPos][4], GateInfo[gateID][gOpenPos][5]
     );
     
@@ -340,10 +356,26 @@ stock OpenAutoGate(gateID)
 stock CloseAutoGate(gateID) 
 {
     if(gateID < 0 || gateID >= MAX_GATES || !GateInfo[gateID][gExists] || !GateInfo[gateID][gIsOpen]) return 0;    
-    
+        
+    new Float:currX, Float:currY, Float:currZ;
+    GetDynamicObjectPos(GateInfo[gateID][gObjectID], currX, currY, currZ);
+
+    new Float:dist = VectorSize(
+        GateInfo[gateID][gClosedPos][0] - currX, 
+        GateInfo[gateID][gClosedPos][1] - currY, 
+        GateInfo[gateID][gClosedPos][2] - currZ
+    );
+
+    new Float:moveSpeed = GateInfo[gateID][gSpeed];
+
+    if(dist < 0.1 && moveSpeed > 0.01)
+    {
+        moveSpeed = moveSpeed * 0.01;
+    }
+
     MoveDynamicObject(GateInfo[gateID][gObjectID], 
         GateInfo[gateID][gClosedPos][0], GateInfo[gateID][gClosedPos][1], GateInfo[gateID][gClosedPos][2], 
-        GateInfo[gateID][gSpeed], 
+        moveSpeed,
         GateInfo[gateID][gClosedPos][3], GateInfo[gateID][gClosedPos][4], GateInfo[gateID][gClosedPos][5]
     );
 
