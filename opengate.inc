@@ -211,17 +211,17 @@ static stock OG_CallRequestAccess(playerid, gateid)
 
 static stock OG_CallOnGateOpened(gateid)
 {
-    #if defined OnGateOpened
-        CallLocalFunction("OnGateOpened", "i", gateid);
-    #endif
+    if(funcidx("OnGateOpened") != -1) {
+        return CallLocalFunction("OnGateOpened", "i", gateid);
+    }
     return 1;
 }
 
 static stock OG_CallOnGateClosed(gateid)
 {
-    #if defined OnGateClosed
-        CallLocalFunction("OnGateClosed", "i", gateid);
-    #endif
+    if(funcidx("OnGateClosed") != -1) {
+        return CallLocalFunction("OnGateClosed", "i", gateid);
+    }
     return 1;
 }
 
@@ -350,7 +350,7 @@ stock OpenAutoGate(gateID, bool:smooth = true)
         KillTimer(GateInfo[gateID][gTimerID]);
         GateInfo[gateID][gTimerID] = -1;
     }
-    
+
     OG_CallOnGateOpened(gateID);
     return 1;
 }
