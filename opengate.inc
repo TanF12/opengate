@@ -54,6 +54,9 @@
 #define GATE_MOVE_RIGHT     3
 #define GATE_MOVE_FORWARD   4
 #define GATE_MOVE_BACKWARD  5
+#define GATE_ROTATE_X       6
+#define GATE_ROTATE_Y       7
+#define GATE_ROTATE_Z       8
 #define INVALID_GATE_ID     -1
 
 
@@ -115,6 +118,10 @@ static stock OG_FreeGateSlot(gateID)
 
 static stock OG_GetMoveDirection(const move[]) 
 {
+    if(!strcmp(move, "rotx", true)) return GATE_ROTATE_X;
+    if(!strcmp(move, "roty", true)) return GATE_ROTATE_Y;
+    if(!strcmp(move, "rotz", true)) return GATE_ROTATE_Z;
+
     switch(move[0]) 
     {
         case 'u', 'U': return GATE_MOVE_UP;
@@ -127,36 +134,69 @@ static stock OG_GetMoveDirection(const move[])
     return GATE_MOVE_UP;
 }
 
-static stock OG_CalculateOpenPosition(Float:cX, Float:cY, Float:cZ, Float:cRZ, dir, Float:mov, &Float:oX, &Float:oY, &Float:oZ) 
+static stock OG_CalculateOpenPosition(Float:cX, Float:cY, Float:cZ, Float:cRZ,  Float:cRX, Float:cRY, dir, Float:mov,  &Float:oX, &Float:oY, &Float:oZ, &Float:oRX, &Float:oRY, &Float:oRZ) 
 {
-    oX = cX;
-    oY = cY;
-    oZ = cZ;
+    oX = cX; 
+    oY = cY; 
+    oZ = cZ;   
+    oRX = cRX; 
+    oRY = cRY; 
+    oRZ = cRZ;
+
+    new Float:targetAngle;
+    new bool:isMovementXY = false;
 
     switch(dir)
     {
-        case GATE_MOVE_UP:       oZ += mov;
-        case GATE_MOVE_DOWN:     oZ -= mov;
-        case GATE_MOVE_LEFT: 
+        case GATE_MOVE_UP: 
         {
-            oX += mov * floatcos(cRZ - 90.0, degrees);
-            oY += mov * floatsin(cRZ - 90.0, degrees);
+            oZ += mov;
         }
-        case GATE_MOVE_RIGHT: 
+        case GATE_MOVE_DOWN: 
         {
-            oX += mov * floatcos(cRZ + 90.0, degrees);
-            oY += mov * floatsin(cRZ + 90.0, degrees);
+            oZ -= mov;
         }
         case GATE_MOVE_FORWARD: 
         {
-            oX += mov * floatcos(cRZ, degrees);
-            oY += mov * floatsin(cRZ, degrees);
+            targetAngle = cRZ;
+            isMovementXY = true;
         }
         case GATE_MOVE_BACKWARD: 
         {
-            oX -= mov * floatcos(cRZ, degrees);
-            oY -= mov * floatsin(cRZ, degrees);
+            targetAngle = cRZ + 180.0;
+            isMovementXY = true;
         }
+        case GATE_MOVE_LEFT: 
+        {
+            targetAngle = cRZ - 90.0;
+            isMovementXY = true;
+        }
+        case GATE_MOVE_RIGHT: 
+        {
+            targetAngle = cRZ + 90.0;
+            isMovementXY = true;
+        }
+        case GATE_ROTATE_X: 
+        { 
+            oRX += mov; 
+            oZ += 0.004; 
+        }
+        case GATE_ROTATE_Y: 
+        { 
+            oRY += mov; 
+            oZ += 0.004; 
+        }
+        case GATE_ROTATE_Z: 
+        { 
+            oRZ += mov; 
+            oZ += 0.004; 
+        }
+    }
+
+    if(isMovementXY)
+    {
+        oX += mov * floatsin(-targetAngle, degrees);
+        oY += mov * floatcos(-targetAngle, degrees);
     }
 }
 
@@ -221,15 +261,16 @@ stock CreateAutoGate(modelid, Float:cX, Float:cY, Float:cZ, Float:cRX, Float:cRY
     GateInfo[gateID][gClosedPos][4] = cRY;
     GateInfo[gateID][gClosedPos][5] = cRZ;
 
-    new Float:oX, Float:oY, Float:oZ;
-    OG_CalculateOpenPosition(cX, cY, cZ, cRZ, OG_GetMoveDirection(move), movement, oX, oY, oZ);    
+    new Float:oX, Float:oY, Float:oZ, Float:oRX, Float:oRY, Float:oRZ;
     
-    GateInfo[gateID][gOpenPos][0] = oX;
-    GateInfo[gateID][gOpenPos][1] = oY;
+    OG_CalculateOpenPosition(cX, cY, cZ, cRZ, cRX, cRY, OG_GetMoveDirection(move), movement, oX, oY, oZ, oRX, oRY, oRZ);
+    
+    GateInfo[gateID][gOpenPos][0] = oX; 
+    GateInfo[gateID][gOpenPos][1] = oY; 
     GateInfo[gateID][gOpenPos][2] = oZ;
-    GateInfo[gateID][gOpenPos][3] = cRX;
-    GateInfo[gateID][gOpenPos][4] = cRY;
-    GateInfo[gateID][gOpenPos][5] = cRZ;
+    GateInfo[gateID][gOpenPos][3] = oRX; 
+    GateInfo[gateID][gOpenPos][4] = oRY; 
+    GateInfo[gateID][gOpenPos][5] = oRZ;
 
     GateInfo[gateID][gRange] = range;
     GateInfo[gateID][gSpeed] = speed;
